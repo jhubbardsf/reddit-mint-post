@@ -39,6 +39,7 @@ export const load: PageServerLoad = async () => {
 		const author = content[0].author.name;
 		const title = content[0].title;
 		console.log({ author, title });
+		console.log('Comment?: ', message.was_comment);
 	});
 	// console.log({ jsonMessages });
 

@@ -1,9 +1,9 @@
 org: jhubbard
 app: reddit-minter-bot
 service: reddit-minter-bot
+useDotenv: true
 
-frameworkVersion: '3'
-
+frameworkVersion: "3"
 
 provider:
   name: aws
