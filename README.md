@@ -5,7 +5,7 @@ Bot that uses HTML -> Image generation to create an image of a reddit post and m
 
 `/u/CommentNFTMinter 0xTHEIR_POLY_ADDRESS`
 
-Example usage can be seen on the [CommentNFTTest](https://www.reddit.com/r/CommentNFTTest/) subreddit.
+Example usage can be seen on the [CommentNFTTest](https://www.reddit.com/r/CommentNFTTest/) subreddit. The bot does work but it's getting stuck in my spam filter for some reason despite it being a moderator, approved user, and flagged in the automoderator script to be automatically approved -_-. So apologies for the issues in testin.
 
 ## Logic
 All the logic handling the reddit bot and crossmint minting live in handler.js. The bot is deployed to AWS lambda with a 1 minute cron job using [serverless](serverless.com).
