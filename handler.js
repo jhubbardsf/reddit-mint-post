@@ -20,7 +20,6 @@ module.exports.run = async (event, context) => {
   messages.forEach(async (message) => {
     if (message.was_comment) {
       const parent_id = message.parent_id;
-      // const parentId = JSON.parse(JSON.stringify(message)).parent_id;
       const submission = r.getSubmission(parent_id);
       const [content] = await r.getContentByIds([submission.name]); // What I want about the post is the content
 
@@ -35,10 +34,12 @@ module.exports.run = async (event, context) => {
 
       if (ethRegex.test(address)) {
         try {
+          const imageUrl = await createImage(parent_id);
+
           const metadata = {
             description: "Reddit Post NFT",
             external_url: `https://reddit.com${content.permalink}`,
-            image: content.url,
+            image: imageUrl,
             name: content.title,
             attributes: [
               {
@@ -75,10 +76,8 @@ module.exports.run = async (event, context) => {
               "x-project-id": process.env.CROSSMINT_PROJECT_ID,
             },
           });
-          console.log({ statusRes });
 
-          const replyMessage = `NFT is minting! You will see it in your NFT [here](https://mumbai.polygonscan.com/address/${address}#tokentxnsErc721) soon!`;
-
+          const replyMessage = `Your NFT is minting. A preview can be seen [here](${imageUrl}). You can look at your NFT's transaction on the blockchain [here](https://mumbai.polygonscan.com/address/${address}#tokentxnsErc721).`;
           await message.reply(replyMessage);
         } catch (err) {
           console.log({ err });
@@ -91,7 +90,35 @@ module.exports.run = async (event, context) => {
         );
       }
     }
-    // Mark as read
+    // // Mark as read
     await r.markMessagesAsRead([message]);
   });
 };
+
+async function createImage(selector) {
+  const payload = {
+    url: "https://www.reddit.com/r/CommentNFTTest/comments/wugt9n/fred_2/",
+    selector: `#${selector}`,
+  };
+  let headers = {
+    auth: {
+      username: process.env.HTCI_USERNAME,
+      password: process.env.HTCI_PASSWORD,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  try {
+    const response = await axios.post(
+      "https://hcti.io/v1/image",
+      JSON.stringify(payload),
+      headers
+    );
+    console.log(response.data.url);
+
+    return response.data.url;
+  } catch (error) {
+    console.error(error);
+  }
+}
