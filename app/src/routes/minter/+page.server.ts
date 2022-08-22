@@ -1,4 +1,4 @@
-import snoowrap from 'snoowrap';
+import snoowrap, { PrivateMessage } from 'snoowrap';
 import type { PageServerLoad } from './$types';
 import { PUBLIC_BOT_NAME, PUBLIC_BOT_USER_AGENT } from '$env/static/public';
 import { BOT_PASSWORD, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } from '$env/static/private';
@@ -18,6 +18,7 @@ export const load: PageServerLoad = async () => {
 	const contents: any = [];
 	console.log('DO');
 	messages.forEach(async (message) => {
+		PrivateMessage;
 		// console.log({ message });
 		jsonMessages.push(message.toJSON());
 		const postId = message.parent_id;
@@ -40,6 +41,7 @@ export const load: PageServerLoad = async () => {
 		const title = content[0].title;
 		console.log({ author, title });
 		console.log('Comment?: ', message.was_comment);
+		const pm = r.markMessagesAsRead([message]);
 	});
 	// console.log({ jsonMessages });
 
