@@ -6,7 +6,7 @@ Bot that uses HTML -> Image generation to create an image of a reddit post and m
 `/u/CommentNFTMinter 0xTHEIR_POLY_ADDRESS`
 
 ## Logic
-All the logic handling the reddit bot and crossmint minting live in handler.js. The bot is deployed to AWS lambda on 1 minute cron job using [serverless](serverless.com).
+All the logic handling the reddit bot and crossmint minting live in handler.js. The bot is deployed to AWS lambda with a 1 minute cron job using [serverless](serverless.com).
 
 ## Notes
 I've been testing it around in /r/CommentNFTTest. Idk how well my bot will work elsewhere since it's brand new (and has low karma so might get caught in a lot of spam filters), but he's an approved submitted to that test subreddit.
