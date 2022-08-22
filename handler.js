@@ -11,13 +11,15 @@ module.exports.run = async (event, context) => {
     password: process.env.BOT_PASSWORD,
   };
 
-  const mintAddress = "";
   const r = new snoowrap(snoowrapOptions);
-
   const messages = await r.getUnreadMessages();
   console.log({ messages });
 
   messages.forEach(async (message) => {
+    // Mark as read
+    await r.markMessagesAsRead([message]);
+
+    let replyMessage = "";
     if (message.was_comment) {
       const parent_id = message.parent_id;
       const submission = r.getSubmission(parent_id);
@@ -26,7 +28,7 @@ module.exports.run = async (event, context) => {
       // Try to parse out an address at the start
       const address = message.body
         .replace(`/u/${process.env.BOT_NAME}`, "")
-        .replaceAll(" ", "")
+        .trim()
         .substring(0, 42);
       console.log({ address });
 
@@ -34,11 +36,12 @@ module.exports.run = async (event, context) => {
 
       if (ethRegex.test(address)) {
         try {
-          const imageUrl = await createImage(parent_id);
+          const thread = `https://reddit.com${content.permalink}`;
+          const imageUrl = await createImage(parent_id, thread);
 
           const metadata = {
-            description: "Reddit Post NFT",
-            external_url: `https://reddit.com${content.permalink}`,
+            description: `Reddit Post NFT ${content.title}`,
+            external_url: thread,
             image: imageUrl,
             name: content.title,
             attributes: [
@@ -52,6 +55,8 @@ module.exports.run = async (event, context) => {
               },
             ],
           };
+
+          console.log({ metadata });
 
           const res = await axios({
             url: "https://staging.crossmint.io/api/2022-06-09/collections/default/nfts",
@@ -77,29 +82,30 @@ module.exports.run = async (event, context) => {
             },
           });
 
-          const replyMessage = `Your NFT is minting. A preview can be seen [here](${imageUrl}). You can look at your NFT's transaction on the blockchain [here](https://mumbai.polygonscan.com/address/${address}#tokentxnsErc721).`;
-          await message.reply(replyMessage);
+          console.log({ imageUrl });
+
+          replyMessage = `Your NFT is minting. A preview can be seen [here](${imageUrl}). You can look at your NFT's transaction on the blockchain [here](https://mumbai.polygonscan.com/address/${address}#tokentxnsErc721).`;
         } catch (err) {
           console.log({ err });
-          await message.reply("Unknown error while minting NFT. Sorry :(");
+          replyMessage = "Unknown error while minting NFT. Sorry :(";
         }
       } else {
-        await message.reply(
-          `Please comment with a valid ethereum address after my name. Example below.
-        \`/u/${process.env.BOT_NAME} 0x1234567890123456789012345678901234567890\``
-        );
+        replyMessage = `Please comment with a valid ethereum address after my name. Example below.
+        \`/u/${process.env.BOT_NAME} 0x1234567890123456789012345678901234567890\``;
       }
     }
-    // // Mark as read
-    await r.markMessagesAsRead([message]);
+    // Reply
+    await message.reply(replyMessage);
   });
 };
 
-async function createImage(selector) {
+async function createImage(selector, url) {
   const payload = {
-    url: "https://www.reddit.com/r/CommentNFTTest/comments/wugt9n/fred_2/",
+    url,
     selector: `#${selector}`,
+    css: '[id*=vote-arrows] { display: none; } [data-testid="post-container"] { padding-right: 30px}',
   };
+  console.log({ payload });
   let headers = {
     auth: {
       username: process.env.HTCI_USERNAME,
