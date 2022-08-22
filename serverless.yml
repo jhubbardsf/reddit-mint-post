@@ -12,11 +12,17 @@ provider:
 functions:
   rateHandler:
     handler: handler.run
+    environment:
+      APP_ABBR: ${param:APP_ABBR}
+      BOT_NAME: ${param:BOT_NAME}
+      BOT_USER_AGENT: ${param:BOT_USER_AGENT}
+      BOT_PASSWORD: ${param:BOT_PASSWORD}
+      REDDIT_CLIENT_ID: ${param:REDDIT_CLIENT_ID}
+      REDDIT_CLIENT_SECRET: ${param:REDDIT_CLIENT_SECRET}
+      CROSSMINT_CLIENT_SECRET: ${param:CROSSMINT_CLIENT_SECRET}
+      CROSSMINT_PROJECT_ID: ${param:CROSSMINT_PROJECT_ID}
+      HTCI_USERNAME: ${param:HTCI_USERNAME}
+      HTCI_PASSWORD: ${param:HTCI_PASSWORD}
     events:
       # Invoke Lambda function every minute
       - schedule: rate(1 minute)
-  cronHandler:
-    handler: handler.run
-    events:
-      # Invoke Lambda function every 2nd minute from Mon-Fri
-      - schedule: cron(0/2 * ? * MON-FRI *)
